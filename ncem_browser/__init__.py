@@ -488,11 +488,19 @@ class MetadataView(DataBrowserView):
         ext = fname.suffix
         return ext.lower() in ('.dm3', '.dm4', '.mrc', '.ali', '.rec')
 
-if __name__ == '__main__':
+def open_file():
+    """Start the graphical user interface by opening a file. This is used from a python interpreter."""
+    main()
+
+def main():
     import sys
     
     app = DataBrowser(sys.argv)
     #app.load_view(HyperSpectralBaseView(app))
 
     sys.exit(app.exec_())
+    
+
+if __name__ == '__main__':
+    main()
     
