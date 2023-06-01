@@ -8,7 +8,4 @@ authors = [{name = "Peter Ercius", email="percius@lbl.gov"}]
 description = "Graphical user interface to view transmission electron microscopy data."
 requires-python = ">=3.8"
 dependencies = ["numpy","pyqtgraph","ScopeFoundry","ncempy","scipy"]
-dynamic = ["version"]
-
-[tool.setuptools.dynamic]
-version = {attr = "my_package.VERSION"}
+version = "0.1"
