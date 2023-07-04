@@ -1,25 +1,25 @@
-from __future__ import division, print_function, absolute_import
+#from __future__ import division, print_function, absolute_import
 
 from pathlib import Path
+from collections import OrderedDict
+#import os
 import functools
 
 from ScopeFoundry import BaseApp
-from ScopeFoundry.helper_funcs import load_qt_ui_file, sibling_path,\
-    load_qt_ui_from_pkg
-from ScopeFoundry.widgets import RegionSlicer
-from ScopeFoundry.data_browser import DataBrowser
-from collections import OrderedDict
-#import os
+#from ScopeFoundry.helper_funcs import load_qt_ui_file, sibling_path, load_qt_ui_from_pkg
+from ScopeFoundry.helper_funcs import load_qt_ui_from_pkg
+#from ScopeFoundry.widgets import RegionSlicer
+from ScopeFoundry.data_browser import DataBrowser, DataBrowserView
 from qtpy import QtCore, QtWidgets, QtGui
 import pyqtgraph as pg
-import pyqtgraph.dockarea as dockarea
+#import pyqtgraph.dockarea as dockarea
 import numpy as np
 from ScopeFoundry.logged_quantity import LQCollection
-from scipy.stats import spearmanr
+#from scipy.stats import spearmanr
 import argparse
-import time
-import h5py
-from datetime import datetime
+#import time
+#import h5py
+#from datetime import datetime
 
 import imageio.v3 as iio
 import ncempy
@@ -192,8 +192,11 @@ class DataBrowser_PAE(BaseApp):
         return 'ncem_view'
         
 
-class DataBrowserView(QtCore.QObject):
-    """ Abstract class for DataBrowser Views"""
+class DataBrowserView_old(QtCore.QObject):
+    """ Abstract class for DataBrowser Views
+    
+    old: this was copied from ScopeFoundry. I just import it now.
+    """
     
     def __init__(self, databrowser):
         QtCore.QObject.__init__(self)
@@ -250,7 +253,7 @@ class imageioView(DataBrowserView):
             raise(err)
 
 class ncemView(DataBrowserView):
-    """ Data browser for common NCEM file types
+    """ Data browser for common S/TEM file types
     
     """
 
