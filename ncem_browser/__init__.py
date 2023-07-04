@@ -7,6 +7,7 @@ from ScopeFoundry import BaseApp
 from ScopeFoundry.helper_funcs import load_qt_ui_file, sibling_path,\
     load_qt_ui_from_pkg
 from ScopeFoundry.widgets import RegionSlicer
+from ScopeFoundry.data_browser import DataBrowser
 from collections import OrderedDict
 #import os
 from qtpy import QtCore, QtWidgets, QtGui
@@ -23,7 +24,10 @@ from datetime import datetime
 import imageio.v3 as iio
 import ncempy
 
-class DataBrowser(BaseApp):
+# TODO: Import DataBrowser and DataBrowserView
+# Push changes in DataBrowser_old to ScopeFoundryadmin
+
+class DataBrowser_old(BaseApp):
     
     name = "DataBrowser"
     
@@ -85,10 +89,10 @@ class DataBrowser(BaseApp):
         self.settings.browse_dir.add_listener(self.on_change_browse_dir)
         self.settings['browse_dir'] = Path.home()
 
-        # set views
-        self.load_view(ncemView(self))
-        self.load_view(imageioView(self))
-        self.load_view(MetadataView(self))
+        # set views (these should be set in main() before start-up
+        # self.load_view(ncemView(self))
+        # self.load_view(imageioView(self))
+        # self.load_view(MetadataView(self))
 
         self.settings.view_name.add_listener(self.on_change_view_name)
         self.settings['view_name'] = "ncem_view"
@@ -227,7 +231,7 @@ class imageioView(DataBrowserView):
     	 # Tells the DataBrowser whether this plug-in would likely be able
     	 # to read the given file name
     	 # here we are using the file extension to make a guess
-        ext = fname.suffix
+        ext = Path(fname).suffix
         return ext.lower() in ['.png', '.tif', '.tiff', '.jpg']
 
     def on_change_data_filename(self, fname):
@@ -262,7 +266,7 @@ class ncemView(DataBrowserView):
          to read the given file name
          here we are using the file extension to make a guess
         """
-        ext = fname.suffix
+        ext = Path(fname).suffix
         return ext.lower() in ['.dm3', '.dm4', '.mrc', '.ali', '.rec', '.emd']
 
     def on_change_data_filename(self, fname):
@@ -485,7 +489,7 @@ class MetadataView(DataBrowserView):
         self.ui.setText(txt)
         
     def is_file_supported(self, fname):
-        ext = fname.suffix
+        ext = Path(fname).suffix
         return ext.lower() in ('.dm3', '.dm4', '.mrc', '.ali', '.rec')
 
 def open_file():
@@ -496,8 +500,10 @@ def main():
     import sys
     
     app = DataBrowser(sys.argv)
-    #app.load_view(HyperSpectralBaseView(app))
-
+    # Load views here
+    app.load_view(ncemView(app))
+    app.load_view(imageioView(app))
+    app.load_view(MetadataView(app))
     sys.exit(app.exec_())
     
 
