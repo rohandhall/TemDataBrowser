@@ -27,7 +27,7 @@ import ncempy
 # TODO: Import DataBrowser and DataBrowserView
 # Push changes in DataBrowser_old to ScopeFoundryadmin
 
-class DataBrowser_old(BaseApp):
+class DataBrowser_PAE(BaseApp):
     
     name = "DataBrowser"
     
@@ -218,9 +218,11 @@ class DataBrowserView(QtCore.QObject):
         return False
 
 class imageioView(DataBrowserView):
-
+    """ Handles most normal image types like TIF, PNG, etc."""
+    
+    
     # This name is used in the GUI for the DataBrowser
-    name = 'imageio_imread_view'
+    name = 'Image viewer (imageio)'
     
     def setup(self):
         # create the GUI and viewer settings, runs once at program start up
@@ -253,7 +255,7 @@ class ncemView(DataBrowserView):
     """
 
     # This name is used in the GUI for the DataBrowser
-    name = 'ncem_view'
+    name = 'Ncempy viewer'
     
     def setup(self):
         """ create the GUI and viewer settings, runs once at program start up
@@ -290,7 +292,7 @@ class MetadataView(DataBrowserView):
     """ A viewer to read meta data from a file and display it as text.
     
     """
-    name = 'metadata_info'
+    name = 'Ncempy metadata viewer'
     
     def setup(self):
         self.ui = QtWidgets.QTextEdit("File metadata")
@@ -298,6 +300,7 @@ class MetadataView(DataBrowserView):
     @staticmethod
     @functools.lru_cache(maxsize=10, typed=False)
     def get_dm_metadata(fname):
+        """ Reads important metadata from DM files"""
         metaData = {}
         with ncempy.io.dm.fileDM(fname, on_memory=True) as dm1:
             # Only keep the most useful tags as meta data
@@ -352,6 +355,7 @@ class MetadataView(DataBrowserView):
     @staticmethod
     @functools.lru_cache(maxsize=10, typed=False)
     def get_mrc_metadata(path):
+        """ Reads important metadata from MRC and related files."""
         metaData = {}
 
         # Open file and parse the header
@@ -414,6 +418,7 @@ class MetadataView(DataBrowserView):
     @staticmethod
     @functools.lru_cache(maxsize=10, typed=False)
     def get_emd_metadata(path):
+        """ Reads important metadata from EMD Berkeley files."""
         metaData = {}
         with ncempy.io.emd.fileEMD(path) as emd0:        
             metaData.update(emd0.user.attrs)
@@ -434,6 +439,7 @@ class MetadataView(DataBrowserView):
     @staticmethod
     @functools.lru_cache(maxsize=10, typed=False)
     def get_velox_metadata(path):
+        """ Reads important metadata from Velox EMD files."""
         import json
         metaData = {}
         with ncempy.io.emdVelox.fileEMDVelox(path) as f0:
@@ -493,17 +499,19 @@ class MetadataView(DataBrowserView):
         return ext.lower() in ('.dm3', '.dm4', '.mrc', '.ali', '.rec')
 
 def open_file():
-    """Start the graphical user interface by opening a file. This is used from a python interpreter."""
+    """Start the graphical user interface from insides a python interpreter."""
     main()
 
 def main():
+    """ This starts the graphical user interface and loads the views."""
     import sys
     
     app = DataBrowser(sys.argv)
     # Load views here
-    app.load_view(ncemView(app))
-    app.load_view(imageioView(app))
+    # Last loaded is the first one tried
     app.load_view(MetadataView(app))
+    app.load_view(imageioView(app))
+    app.load_view(ncemView(app))
     sys.exit(app.exec_())
     
 
