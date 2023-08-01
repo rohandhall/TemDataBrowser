@@ -27,9 +27,12 @@ import ncempy
 # TODO: Import DataBrowser and DataBrowserView
 # Push changes in DataBrowser_old to ScopeFoundryadmin
 
+# Use row-major instead of col-major
+pg.setConfigOption('imageAxisOrder', 'row-major')
+
 class DataBrowser_PAE(BaseApp):
     
-    name = "DataBrowser"
+    name = "Data Browser"
     
     def __init__(self, argv):
         BaseApp.__init__(self, argv)
@@ -52,7 +55,7 @@ class DataBrowser_PAE(BaseApp):
         self.ui.show()
         self.ui.raise_()
         
-        self.ui.setWindowTitle("ScopeFoundry: NCEM Data Browser")
+        self.ui.setWindowTitle("ScopeFoundry: NCEM   Data Browser")
         self.ui.setWindowIcon(QtGui.QIcon('scopefoundry_logo2C_1024.png'))
         
         self.views = OrderedDict()        
@@ -93,7 +96,7 @@ class DataBrowser_PAE(BaseApp):
         # self.load_view(ncemView(self))
         # self.load_view(imageioView(self))
         # self.load_view(MetadataView(self))
-
+        
         self.settings.view_name.add_listener(self.on_change_view_name)
         self.settings['view_name'] = "ncem_view"
         
@@ -265,14 +268,17 @@ class ncemView(DataBrowserView):
             self.ui should be a QWidget of some sort, here we use a pyqtgraph ImageView
         """
         self.ui = self.imview = pg.ImageView()
-
+        # Use row-major in ImageView
+        # pg.setConfigOption('imageAxisOrder', 'row-major')
+        # self.settings['browse_dir'] = Path.home()
+    
     def is_file_supported(self, fname):
         """ Tells the DataBrowser whether this plug-in would likely be able
          to read the given file name
          here we are using the file extension to make a guess
         """
         ext = Path(fname).suffix
-        return ext.lower() in ['.dm3', '.dm4', '.mrc', '.ali', '.rec', '.emd']
+        return ext.lower() in ['.dm3', '.dm4', '.mrc', '.ali', '.rec', '.emd', '.ser']
 
     def on_change_data_filename(self, fname):
         """  A new file has been selected by the user, load and display it
