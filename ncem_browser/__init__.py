@@ -192,35 +192,6 @@ class DataBrowser_PAE(BaseApp):
                 return view_name
         # return default file_info view if no others work
         return 'ncem_view'
-        
-
-class DataBrowserView_old(QtCore.QObject):
-    """ Abstract class for DataBrowser Views
-    
-    old: this was copied from ScopeFoundry. I just import it now.
-    """
-    
-    def __init__(self, databrowser):
-        QtCore.QObject.__init__(self)
-        self.databrowser =  databrowser
-        self.settings = LQCollection()
-        self.setup()
-        
-    def setup(self):
-        pass
-        # create view with no data file
-
-    def on_change_data_filename(self, fname=None):
-        pass
-        # load data file
-        
-        # update display
-        
-    def is_file_supported(self, fname):
-        """ returns whether view can handle file, should return False early to avoid
-         too much computation when selecting a file
-         """
-        return False
 
 class imageioView(DataBrowserView):
     """ Handles most normal image types like TIF, PNG, etc."""
