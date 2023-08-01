@@ -271,6 +271,7 @@ class ncemView(DataBrowserView):
         self.plt = pg.PlotItem(labels={'bottom':('X',''),'left':('Y','')})
         self.ui = self.imview = pg.ImageView(view=self.plt)
         
+        
     def is_file_supported(self, fname):
         """ Tells the DataBrowser whether this plug-in would likely be able
          to read the given file name
@@ -301,8 +302,8 @@ plt.setAspectLocked(False)
             """
             print(file['pixelSize'][0], file['pixelUnit'][0])
             print(fname)
-            xscale = 0.1#file['pixelSize'][0]
-            yscale = 0.1#file['pixelSize'][1]
+            xscale = file['pixelSize'][0]
+            yscale = file['pixelSize'][1]
             self.imview.setImage(self.data, pos=[0, 0], scale=[xscale, yscale])
             #self.plt.setLabel('bottom', text='X1', units='m')
             #plt.setAspectLocked(False)
@@ -535,6 +536,7 @@ def main():
     import sys
     
     app = DataBrowser(sys.argv)
+    app.settings['browse_dir'] = Path.home()
     # Load views here
     # Last loaded is the first one tried
     app.load_view(MetadataView(app))
