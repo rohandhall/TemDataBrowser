@@ -24,7 +24,6 @@ import argparse
 import imageio.v3 as iio
 import ncempy
 
-# TODO: Import DataBrowser and DataBrowserView
 # Push changes in DataBrowser_old to ScopeFoundryadmin
 
 # Use row-major instead of col-major
@@ -267,11 +266,11 @@ class ncemView(DataBrowserView):
         """ create the GUI and viewer settings, runs once at program start up
             self.ui should be a QWidget of some sort, here we use a pyqtgraph ImageView
         """
-        self.ui = self.imview = pg.ImageView()
-        # Use row-major in ImageView
-        # pg.setConfigOption('imageAxisOrder', 'row-major')
-        # self.settings['browse_dir'] = Path.home()
-    
+        #self.ui = self.imview = pg.ImageView()
+        #self.viewbox = self.imview.getView()
+        self.plt = pg.PlotItem(labels={'bottom':('X',''),'left':('Y','')})
+        self.ui = self.imview = pg.ImageView(view=self.plt)
+        
     def is_file_supported(self, fname):
         """ Tells the DataBrowser whether this plug-in would likely be able
          to read the given file name
@@ -284,10 +283,30 @@ class ncemView(DataBrowserView):
         """  A new file has been selected by the user, load and display it
         """
         try:
-            self.data = np.squeeze(ncempy.read(fname)['data'])
+            file = ncempy.read(fname)
+            self.data = np.squeeze(file['data'])
             if self.data.ndim == 4:
                 print(f'Warning: Reducing {self.data.ndim}-D data to 3-D.')
                 self.data = self.data[0,:,:,:]
+            
+            """
+plt = pg.PlotItem(labels={'bottom':('time',''),'left':('frequency','')})
+imv = pg.ImageView(view=plt)
+x0, x1 = (0, 500)
+y0, y1 = (0, 16)
+xscale = (x1-x0)/img.shape[0]
+yscale = (y1-y0)/img.shape[1]
+imv.setImage(img, pos=[x0,y0], scale=[xscale, yscale])
+plt.setAspectLocked(False)
+            """
+            print(file['pixelSize'][0], file['pixelUnit'][0])
+            print(fname)
+            xscale = 0.1#file['pixelSize'][0]
+            yscale = 0.1#file['pixelSize'][1]
+            self.imview.setImage(self.data, pos=[0, 0], scale=[xscale, yscale])
+            #self.plt.setLabel('bottom', text='X1', units='m')
+            #plt.setAspectLocked(False)
+            
             self.imview.setImage(self.data)
         except Exception as err:
         	# When a failure to load occurs, zero out image
