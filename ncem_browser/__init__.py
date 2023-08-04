@@ -508,6 +508,9 @@ class MetadataView(DataBrowserView):
 
             return metaData
     
+    def get_emi_metadata(self, fname):
+        return ncempy.io.ser.read_emi(fname)
+        
     def on_change_data_filename(self, fname):
         ext = Path(fname).suffix
         
@@ -535,7 +538,7 @@ class MetadataView(DataBrowserView):
         
     def is_file_supported(self, fname):
         ext = Path(fname).suffix
-        return ext.lower() in ('.dm3', '.dm4', '.mrc', '.ali', '.rec')
+        return ext.lower() in ('.dm3', '.dm4', '.mrc', '.ali', '.rec', '.ser', '.emi')
 
 def open_file():
     """Start the graphical user interface from inside a python interpreter."""
