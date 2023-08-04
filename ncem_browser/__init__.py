@@ -54,7 +54,7 @@ class DataBrowser_PAE(BaseApp):
         self.ui.show()
         self.ui.raise_()
         
-        self.ui.setWindowTitle("ScopeFoundry: NCEM   Data Browser")
+        self.ui.setWindowTitle("ScopeFoundry: NCEM Data Browser")
         self.ui.setWindowIcon(QtGui.QIcon('scopefoundry_logo2C_1024.png'))
         
         self.views = OrderedDict()        
@@ -472,6 +472,41 @@ class MetadataView(DataBrowserView):
             metaData.update(mDataS)
 
             metaData['shape'] = dataset0.shape
+        return metaData
+
+    def get_ser_metadata(self, fname):
+            metaData = {}
+            with ncempy.io.ser.fileSER(fname) as ser1:
+                data, metaData = ser1.getDataset(0)  # have to get 1 image and its meta data
+
+                # Add extra meta data from the EMI file if it exists
+                if ser1._emi is not None:
+                    metaData.update(ser1._emi)
+
+            metaData.update(ser1.head)  # some header data for the ser file
+
+            # Clean the dictionary
+            for k, v in metaData.items():
+                if isinstance(v, bytes):
+                    metaData[k] = v.decode('UTF8')
+
+            # Store the X and Y pixel size, offset and unit
+            try:
+                metaData['PhysicalSizeX'] = metaData['Calibration'][0]['CalibrationDelta']
+                metaData['PhysicalSizeXOrigin'] = metaData['Calibration'][0]['CalibrationOffset']
+                metaData['PhysicalSizeXUnit'] = 'm'  # always meters
+                metaData['PhysicalSizeY'] = metaData['Calibration'][1]['CalibrationDelta']
+                metaData['PhysicalSizeYOrigin'] = metaData['Calibration'][1]['CalibrationOffset']
+                metaData['PhysicalSizeYUnit'] = 'm'  # always meters
+            except:
+                metaData['PhysicalSizeX'] = 1
+                metaData['PhysicalSizeXOrigin'] = 0
+                metaData['PhysicalSizeXUnit'] = ''
+                metaData['PhysicalSizeY'] = 1
+                metaData['PhysicalSizeYOrigin'] = 0
+                metaData['PhysicalSizeYUnit'] = ''
+
+            return metaData
     
     def on_change_data_filename(self, fname):
         ext = Path(fname).suffix
@@ -487,7 +522,11 @@ class MetadataView(DataBrowserView):
                     meta_data = self.get_emd_metadata(fname)
                 else:
                     meta_data = self.get_velox_metadata(fname)
-        
+        elif ext in ('.ser',):
+            meta_data = self.get_ser_metadata(fname)
+        elif ext in ('.emi',):
+            meta_data = self.get_emi_metadata(fname)
+            
         txt = f'file name = {fname}\n'
         for k, v in meta_data.items():
             line = f'{k} = {v}\n'
@@ -499,7 +538,7 @@ class MetadataView(DataBrowserView):
         return ext.lower() in ('.dm3', '.dm4', '.mrc', '.ali', '.rec')
 
 def open_file():
-    """Start the graphical user interface from insides a python interpreter."""
+    """Start the graphical user interface from inside a python interpreter."""
     main()
 
 def main():
