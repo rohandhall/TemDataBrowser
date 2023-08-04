@@ -2,29 +2,19 @@
 
 from pathlib import Path
 from collections import OrderedDict
-#import os
 import functools
 
 from ScopeFoundry import BaseApp
-#from ScopeFoundry.helper_funcs import load_qt_ui_file, sibling_path, load_qt_ui_from_pkg
 from ScopeFoundry.helper_funcs import load_qt_ui_from_pkg
-#from ScopeFoundry.widgets import RegionSlicer
 from ScopeFoundry.data_browser import DataBrowser, DataBrowserView
 from qtpy import QtCore, QtWidgets, QtGui
 import pyqtgraph as pg
-#import pyqtgraph.dockarea as dockarea
 import numpy as np
 from ScopeFoundry.logged_quantity import LQCollection
-#from scipy.stats import spearmanr
 import argparse
-#import time
-#import h5py
-#from datetime import datetime
 
 import imageio.v3 as iio
 import ncempy
-
-# Push changes in DataBrowser_old to ScopeFoundryadmin
 
 # Use row-major instead of col-major
 pg.setConfigOption('imageAxisOrder', 'row-major')
@@ -45,8 +35,7 @@ class DataBrowser_PAE(BaseApp):
                 val = getattr(args,lq.name)
                 if val is not None:
                     lq.update_value(val)
-        
-        
+
     def setup(self):
 
         #self.ui = load_qt_ui_file(sibling_path(__file__, "data_browser.ui"))
@@ -90,11 +79,6 @@ class DataBrowser_PAE(BaseApp):
 
         self.settings.browse_dir.add_listener(self.on_change_browse_dir)
         self.settings['browse_dir'] = Path.home()
-
-        # set views (these should be set in main() before start-up
-        # self.load_view(ncemView(self))
-        # self.load_view(imageioView(self))
-        # self.load_view(MetadataView(self))
         
         self.settings.view_name.add_listener(self.on_change_view_name)
         self.settings['view_name'] = "ncem_view"
@@ -107,9 +91,6 @@ class DataBrowser_PAE(BaseApp):
 
     def load_view(self, new_view):
         print("loading view", repr(new_view.name))
-        
-        #instantiate view
-        #new_view = ViewClass(self)
         
         self.log.debug('load_view called {}'.format(new_view))
         # add to views dict
@@ -148,7 +129,6 @@ class DataBrowser_PAE(BaseApp):
         self.ui.treeView.setRootIndex(self.fs_model.index(self.settings['browse_dir']))
         self.fs_model.setRootPath(self.settings['browse_dir'])
 
-    
     def on_change_file_filter(self):
         self.log.debug("on_change_file_filter")
         filter_str = self.settings['file_filter']
@@ -183,7 +163,6 @@ class DataBrowser_PAE(BaseApp):
     def on_treeview_selection_change(self, sel, desel):
         fname = self.fs_model.filePath(self.tree_selectionModel.currentIndex())
         self.settings['data_filename'] = Path(fname)
-#        print( 'on_treeview_selection_change' , fname, sel, desel)
 
     def auto_select_view(self, fname):
         """return the name of the last supported view for the given fname"""
@@ -195,7 +174,6 @@ class DataBrowser_PAE(BaseApp):
 
 class imageioView(DataBrowserView):
     """ Handles most normal image types like TIF, PNG, etc."""
-    
     
     # This name is used in the GUI for the DataBrowser
     name = 'Image viewer (imageio)'
@@ -241,8 +219,7 @@ class ncemView(DataBrowserView):
         #self.viewbox = self.imview.getView()
         self.plt = pg.PlotItem(labels={'bottom':('X',''),'left':('Y','')})
         self.ui = self.imview = pg.ImageView(view=self.plt)
-        
-        
+
     def is_file_supported(self, fname):
         """ Tells the DataBrowser whether this plug-in would likely be able
          to read the given file name
@@ -261,7 +238,7 @@ class ncemView(DataBrowserView):
                 print(f'Warning: Reducing {self.data.ndim}-D data to 3-D.')
                 self.data = self.data[0,:,:,:]
             
-            """
+            """ Attempt to set scale properly
 plt = pg.PlotItem(labels={'bottom':('time',''),'left':('frequency','')})
 imv = pg.ImageView(view=plt)
 x0, x1 = (0, 500)
@@ -473,8 +450,10 @@ class MetadataView(DataBrowserView):
 
             metaData['shape'] = dataset0.shape
         return metaData
-
-    def get_ser_metadata(self, fname):
+    
+    @staticmethod
+    @functools.lru_cache(maxsize=10, typed=False)
+    def get_ser_metadata(fname):
             metaData = {}
             with ncempy.io.ser.fileSER(fname) as ser1:
                 data, metaData = ser1.getDataset(0)  # have to get 1 image and its meta data
@@ -508,7 +487,9 @@ class MetadataView(DataBrowserView):
 
             return metaData
     
-    def get_emi_metadata(self, fname):
+    @staticmethod
+    @functools.lru_cache(maxsize=10, typed=False)
+    def get_emi_metadata(fname):
         return ncempy.io.ser.read_emi(fname)
         
     def on_change_data_filename(self, fname):
