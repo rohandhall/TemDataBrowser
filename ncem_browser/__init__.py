@@ -245,16 +245,16 @@ class ncemView(DataBrowserView):
             self.imview.setImage(self.data)
             img = self.imview.getImageItem()
             
-            if file['pixelUnit'][-1] in ('um', 'µm',):
+            if file['pixelUnit'][-1] in ('um', 'µm', '[u_m]', 'u_m'):
                 unit_scale = 1e-6
                 unit = 'm'
-            elif file['pixelUnit'][-1] == 'm':
+            elif file['pixelUnit'][-1] in ('m', ):
                 unit_scale = 1
                 unit = 'm'
-            elif file['pixelUnit'][-1] == 'nm':
+            elif file['pixelUnit'][-1] in ('nm', '[n_m]', 'n_m'):
                 unit_scale = 1e-9
                 unit = 'm'
-            elif file['pixelUnit'][-1] == 'A':
+            elif file['pixelUnit'][-1] in ('A', 'Ang', ):
                 unit_scale = 1e-10
                 unit = 'm'
             else:
