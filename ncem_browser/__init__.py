@@ -238,25 +238,41 @@ class ncemView(DataBrowserView):
                 print(f'Warning: Reducing {self.data.ndim}-D data to 3-D.')
                 self.data = self.data[0,:,:,:]
             
-            """ Attempt to set scale properly
-plt = pg.PlotItem(labels={'bottom':('time',''),'left':('frequency','')})
-imv = pg.ImageView(view=plt)
-x0, x1 = (0, 500)
-y0, y1 = (0, 16)
-xscale = (x1-x0)/img.shape[0]
-yscale = (y1-y0)/img.shape[1]
-imv.setImage(img, pos=[x0,y0], scale=[xscale, yscale])
-plt.setAspectLocked(False)
-            """
-            print(file['pixelSize'][0], file['pixelUnit'][0])
-            print(fname)
-            xscale = file['pixelSize'][0]
-            yscale = file['pixelSize'][1]
-            self.imview.setImage(self.data, pos=[0, 0], scale=[xscale, yscale])
-            #self.plt.setLabel('bottom', text='X1', units='m')
-            #plt.setAspectLocked(False)
+            print(file['pixelSize'][-1], file['pixelUnit'][-1])
             
+            xscale = file['pixelSize'][-2]
+            yscale = file['pixelSize'][-1]
             self.imview.setImage(self.data)
+            img = self.imview.getImageItem()
+            
+            if file['pixelUnit'][-1] in ('um', 'µm',):
+                unit_scale = 1e-6
+                unit = 'm'
+            elif file['pixelUnit'][-1] == 'm':
+                unit_scale = 1
+                unit = 'm'
+            elif file['pixelUnit'][-1] == 'nm':
+                unit_scale = 1e-9
+                unit = 'm'
+            elif file['pixelUnit'][-1] == 'A':
+                unit_scale = 1e-10
+                unit = 'm'
+            else:
+                unit_scale = 1
+                xscale = 1
+                yscale = 1
+                unit = 'pixels'
+            tr = QtGui.QTransform()
+            img.setTransform(tr.scale(xscale * unit_scale, yscale * unit_scale))
+            
+            # Set the labels
+            p1_bottom = self.plt.getAxis('bottom')
+            p1_bottom.setLabel('X', units=unit)
+            p1_left = self.plt.getAxis('left')
+            p1_left.setLabel('Y', units=unit)
+            
+            self.plt.autoRange()
+            
         except Exception as err:
         	# When a failure to load occurs, zero out image
         	# and show error message
