@@ -219,7 +219,8 @@ class ncemView(DataBrowserView):
         #self.viewbox = self.imview.getView()
         self.plt = pg.PlotItem(labels={'bottom':('X',''),'left':('Y','')})
         self.ui = self.imview = pg.ImageView(view=self.plt)
-
+        self.imview.ui.roiBtn.hide()
+        self.imview.ui.menuBtn.hide()
     def is_file_supported(self, fname):
         """ Tells the DataBrowser whether this plug-in would likely be able
          to read the given file name
