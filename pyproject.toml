@@ -3,9 +3,9 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 ["project"]
-name = "ncem_browser"
+name = "TemDataBrowser"
 authors = [{name = "Peter Ercius", email="percius@lbl.gov"}]
 description = "Graphical user interface to view transmission electron microscopy data."
 requires-python = ">=3.8"
-dependencies = ["numpy","pyqtgraph","ScopeFoundry","ncempy","scipy"]
+dependencies = ["numpy","pyqtgraph","ScopeFoundry>=1.2.2","ncempy","scipy"]
 version = "0.1"
