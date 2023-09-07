@@ -203,13 +203,13 @@ class imageioView(DataBrowserView):
             	"failed to load %s:\n%s" %(fname, err))
             raise(err)
 
-class ncemView(DataBrowserView):
+class TemView(DataBrowserView):
     """ Data browser for common S/TEM file types
     
     """
 
     # This name is used in the GUI for the DataBrowser
-    name = 'Ncempy viewer'
+    name = 'TEM data viewer'
     
     def setup(self):
         """ create the GUI and viewer settings, runs once at program start up
@@ -282,11 +282,11 @@ class ncemView(DataBrowserView):
             	f'failed to load {fname}:\n{err}')
             raise(err)
 
-class MetadataView(DataBrowserView):
+class TemMetadataView(DataBrowserView):
     """ A viewer to read meta data from a file and display it as text.
     
     """
-    name = 'Ncempy metadata viewer'
+    name = 'TEM metadata viewer'
     
     def setup(self):
         self.ui = QtWidgets.QTextEdit("File metadata")
@@ -550,9 +550,9 @@ def main():
     app.settings['browse_dir'] = Path.home()
     # Load views here
     # Last loaded is the first one tried
-    app.load_view(MetadataView(app))
+    app.load_view(TemMetadataView(app))
     app.load_view(imageioView(app))
-    app.load_view(ncemView(app))
+    app.load_view(TemView(app))
     sys.exit(app.exec_())
     
 
