@@ -5,24 +5,25 @@ A graphical user interface based on ScopeFoundry for viewing TEM data.
 
 # Installation
 First install QT bindings. For example:
-`pip install PyQt5`
+
+`$ pip install PyQt5`
 
 Then install this package and the rest of the dependencies:
 
-`pip install TemDataBrowser`
+`$ pip install TemDataBrowser`
 
 # Running the GUI
 
 ## From a python interpreter
 Start python interpreter, import the package, and run the `open_file` function:
 
-`$ python`
+```
+$ python
+>>> import TemDataBrowser
+>>> TemDataBrowser.main()
+```
 
-`>>> import TemDataBrowser`
-
-`>>> TemDataBrowser.main()`
-
-to start the graphical user interface. No file name is required.
+to start the graphical user interface.
 
 ## From the command line
 
