@@ -1,7 +1,7 @@
 # TemDataBrowser
 A graphical user interface based on ScopeFoundry for viewing TEM data.
 
-![GUI example](https://github.com/ercius/TemDataBrowser/blob/main/TemDataBrowser_window.png?raw=true)
+![GUI example](https://github.com/ercius/TemDataBrowser/blob/main/images/TemDataBrowser_window.png?raw=true)
 
 # Installation
 First install QT bindings. For example:
