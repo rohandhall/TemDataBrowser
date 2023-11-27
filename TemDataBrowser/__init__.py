@@ -68,10 +68,11 @@ class TemView(DataBrowserView):
         self.ui = self.imview = pg.ImageView(view=self.plt)
         self.imview.ui.roiBtn.hide()
         self.imview.ui.menuBtn.hide()
+    
     def is_file_supported(self, fname):
         """ Tells the DataBrowser whether this plug-in would likely be able
-         to read the given file name
-         here we are using the file extension to make a guess
+        to read the given file name. Here we are using the file extension 
+        to make a guess
         """
         ext = Path(fname).suffix
         return ext.lower() in ['.dm3', '.dm4', '.mrc', '.ali', '.rec', '.emd', '.ser']
@@ -80,13 +81,25 @@ class TemView(DataBrowserView):
         """  A new file has been selected by the user, load and display it
         """
         try:
+            is_stemtomo = False
+            with ncempy.io.emd.fileEMD(fname) as f0:
+                if 'stemtomo version' in f0.file_hdl['data'].attrs:
+                    is_stemtomo = True
+            
             file = ncempy.read(fname)
+            
+            # Remove singular dimensions
             self.data = np.squeeze(file['data'])
-            if self.data.ndim == 4:
+            
+            # Test for > 3D data and reduce if possible
+            if self.data.ndim == 4 and is_stemtomo:
+                print(f'Warning: only showing 1 image per tilt angle for STEMTomo7 data.')
+                self.data = self.data[:,0,:,:]
+            elif self.data.ndim == 4:
                 print(f'Warning: Reducing {self.data.ndim}-D data to 3-D.')
                 self.data = self.data[0,:,:,:]
-            
-            print(file['pixelSize'][-1], file['pixelUnit'][-1])
+            elif self.data.ndim > 4:
+                print(f'{self.data.ndim}-D data files are not supported.')
             
             xscale = file['pixelSize'][-2]
             yscale = file['pixelSize'][-1]
@@ -262,9 +275,18 @@ class TemMetadataView(DataBrowserView):
         """ Reads important metadata from EMD Berkeley files."""
         metaData = {}
         with ncempy.io.emd.fileEMD(path) as emd0:        
-            metaData.update(emd0.user.attrs)
-            metaData.update(emd0.microscope.attrs)
-            metaData.update(emd0.sample.attrs)
+            try:
+                metaData.update(emd0.user.attrs)
+            except AttributeError:
+                pass
+            try:
+                metaData.update(emd0.microscope.attrs)
+            except AttributeError:
+                pass
+            try:
+                metaData.update(emd0.sample.attrs)
+            except AttributeError:
+                pass
             dims = emd0.get_emddims(emd0.list_emds[0])
             dimX = dims[-1]
             dimY = dims[-2]
