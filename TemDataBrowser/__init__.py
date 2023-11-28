@@ -74,17 +74,19 @@ class TemView(DataBrowserView):
         to read the given file name. Here we are using the file extension 
         to make a guess
         """
-        ext = Path(fname).suffix
-        return ext.lower() in ['.dm3', '.dm4', '.mrc', '.ali', '.rec', '.emd', '.ser']
+        ext = Path(fname).suffix.lower()
+        return ext in ['.dm3', '.dm4', '.mrc', '.ali', '.rec', '.emd', '.ser']
 
     def on_change_data_filename(self, fname):
         """  A new file has been selected by the user, load and display it
         """
         try:
+            # Check for special STEMTomo7 EMD files
             is_stemtomo = False
-            with ncempy.io.emd.fileEMD(fname) as f0:
-                if 'stemtomo version' in f0.file_hdl['data'].attrs:
-                    is_stemtomo = True
+            if Path(fname).suffix.lower() == '.emd':
+                with ncempy.io.emd.fileEMD(fname) as f0:
+                    if 'stemtomo version' in f0.file_hdl['data'].attrs:
+                        is_stemtomo = True
             
             file = ncempy.read(fname)
             
