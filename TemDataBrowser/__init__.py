@@ -81,12 +81,14 @@ class TemView(DataBrowserView):
         """  A new file has been selected by the user, load and display it
         """
         try:
-            # Check for special STEMTomo7 EMD files
-            is_stemtomo = False
             if Path(fname).suffix.lower() == '.emd':
-                with ncempy.io.emd.fileEMD(fname) as f0:
-                    if 'stemtomo version' in f0.file_hdl['data'].attrs:
-                        is_stemtomo = True
+                # Check for special STEMTomo7 EMD files
+                is_stemtomo = False
+                if Path(fname).suffix.lower() == '.emd':
+                    with ncempy.io.emd.fileEMD(fname) as f0:
+                        if 'data' in f0.file_hdl:
+                            if 'stemtomo version' in f0.file_hdl['data'].attrs:
+                                is_stemtomo = True
             
             file = ncempy.read(fname)
             
