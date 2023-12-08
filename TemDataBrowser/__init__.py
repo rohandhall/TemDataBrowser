@@ -82,7 +82,7 @@ class TemView(DataBrowserView):
         """
         try:
             if Path(fname).suffix.lower() == '.emd':
-                # Check for special STEMTomo7 EMD files
+                # Check for special STEMTomo7 Berkeley EMD files
                 is_stemtomo = False
                 if Path(fname).suffix.lower() == '.emd':
                     with ncempy.io.emd.fileEMD(fname) as f0:
