@@ -105,6 +105,10 @@ class TemView(DataBrowserView):
             elif self.data.ndim > 4:
                 print(f'{self.data.ndim}-D data files are not supported.')
             
+            #if movie data (3D), pyqtgraph expects axis order of (index, x, y)
+            if self.data.ndim == 3:
+                self.data = self.data.transpose()
+                
             xscale = file['pixelSize'][-2]
             yscale = file['pixelSize'][-1]
             self.imview.setImage(self.data)
